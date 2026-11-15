@@ -1,5 +1,5 @@
-export const ART_SQUARE_PHONE_DISPLAY = "+91 99980 32506";
-export const ART_SQUARE_WHATSAPP_NUMBER = "919998032506";
+export const ART_SQUARE_PHONE_DISPLAY = "+91 90549 34190";
+export const ART_SQUARE_WHATSAPP_NUMBER = "919054934190";
 
 export type WhatsAppProduct = {
   id: string;

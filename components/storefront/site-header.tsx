@@ -11,11 +11,12 @@ import { useShopping } from "./shopping-provider";
 const links = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
+  { href: "/categories", label: "Categories" },
   { href: "/collections", label: "Collections" },
   { href: "/our-story", label: "Our story" },
   { href: "/custom-orders", label: "Custom orders" },
   { href: "/contact", label: "Contact" },
-  { href: "tel:+919998032506", label: ART_SQUARE_PHONE_DISPLAY },
+  { href: "tel:+919054934190", label: ART_SQUARE_PHONE_DISPLAY },
 ];
 
 export default function SiteHeader() {

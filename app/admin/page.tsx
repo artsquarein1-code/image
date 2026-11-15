@@ -1,10 +1,16 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AdminDashboard from "./dashboard";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
+type AdminPageProps = {
+  section?: "all" | "products" | "enquiries";
+  initialProductMode?: "new" | "edit";
+  initialProductId?: string;
+};
+
+export default async function AdminPage({ section = "all", initialProductMode, initialProductId }: AdminPageProps) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
@@ -17,5 +23,6 @@ export default async function AdminPage() {
     supabase.from("product_images").select("id,product_id,storage_path,public_url,alt_text,is_primary,sort_order,file_size,mime_type").order("sort_order"),
     supabase.from("enquiries").select("id,customer_name,email,phone,product_id,message,kind,status,created_at,products(name)").order("created_at", { ascending: false }),
   ]);
-  return <AdminDashboard initialProducts={products ?? []} categories={categories ?? []} collections={collections ?? []} initialImages={images ?? []} initialEnquiries={enquiries ?? []} email={user.email ?? "Staff"} />;
+  if (initialProductMode === "edit" && (!initialProductId || !(products ?? []).some((product) => product.id === initialProductId))) notFound();
+  return <AdminDashboard initialProducts={products ?? []} categories={categories ?? []} collections={collections ?? []} initialImages={images ?? []} initialEnquiries={enquiries ?? []} email={user.email ?? "Staff"} section={section} initialProductMode={initialProductMode} initialProductId={initialProductId} />;
 }

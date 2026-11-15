@@ -1,0 +1,304 @@
+.imageManager {
+  display: grid;
+  gap: 12px;
+}
+
+.dropZone {
+  display: flex;
+  min-height: 136px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px dashed #b8a88a;
+  background: #faf7f0;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.dropZone:hover,
+.dropZoneActive {
+  border-color: var(--terracotta);
+  background: #f2eadc;
+}
+
+.dropTitle {
+  font: 500 18px/1.3 var(--serif);
+}
+
+.dropCopy,
+.fileHint {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.chooseButton {
+  margin-top: 5px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  padding: 9px 13px;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.visuallyHidden:focus-visible + .fileHint {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 3px;
+}
+
+.fileHint {
+  margin: -6px 0 4px;
+}
+
+.uploadProgress {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  padding: 12px;
+}
+
+.uploadProgress progress {
+  width: 100%;
+  height: 7px;
+  accent-color: var(--terracotta);
+}
+
+.progressHeading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.progressFile {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.uploadError {
+  margin: 0;
+  color: #8c2d24;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.imageList {
+  display: grid;
+  gap: 10px;
+}
+
+.imageRow {
+  align-items: start;
+}
+
+.imageRow > img {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 72px;
+  object-fit: cover;
+}
+
+.imageInfo {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.imageInfo strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.imageInfo small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.altField {
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.altField input {
+  width: 100%;
+  min-width: 180px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  padding: 8px 9px;
+  color: var(--ink);
+}
+
+.imageActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.termManager {
+  display: grid;
+  gap: 22px;
+}
+
+.termGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(260px, .7fr);
+  align-items: start;
+  gap: 24px;
+}
+
+.termList {
+  display: grid;
+  gap: 8px;
+}
+
+.termRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  padding: 14px;
+}
+
+.termRow strong,
+.termRow small {
+  display: block;
+}
+
+.termRow small {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.termStatus {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.termForm {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  padding: 18px;
+}
+
+.termForm h2 {
+  margin: 0;
+  font: 500 23px/1.25 var(--serif);
+}
+
+.adminFilters {
+  grid-template-columns: minmax(220px, 1.5fr) minmax(150px, .8fr) minmax(170px, .9fr);
+}
+
+.settingsList {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.settingsList div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 0;
+}
+
+.settingsList dt {
+  color: var(--muted);
+}
+
+.settingsList dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.adminNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 20px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+}
+
+.adminNav a {
+  padding: 9px 12px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.adminNav a[aria-current="page"] {
+  background: #eee7da;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .termGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .adminFilters {
+    grid-template-columns: 1fr;
+  }
+
+  .imageRow {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .imageRow > img {
+    width: 56px;
+    height: 64px;
+  }
+
+  .imageActions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .altField input {
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropZone {
+    transition: none;
+  }
+}

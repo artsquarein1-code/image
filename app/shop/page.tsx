@@ -16,13 +16,18 @@ export const metadata: Metadata = {
 
 export default async function ShopPage() {
   const supabase = await createClient();
-  const [productsResult, collectionsResult, imagesResult] = await Promise.all([
+  const [productsResult, categoriesResult, collectionsResult, imagesResult] = await Promise.all([
     supabase
       .from("products")
       .select(
-        "id,sku,name,slug,short_description,description,price,contact_for_price,featured,display_order,created_at,collection_id,availability",
+        "id,sku,name,slug,short_description,description,price,contact_for_price,featured,display_order,created_at,collection_id,category_id,availability",
       )
       .eq("status", "published")
+      .order("display_order", { ascending: true }),
+    supabase
+      .from("categories")
+      .select("id,name,slug,description,display_order")
+      .eq("active", true)
       .order("display_order", { ascending: true }),
     supabase
       .from("collections")
@@ -37,7 +42,7 @@ export default async function ShopPage() {
 
   const siteUrl = getPublicSiteUrl();
   const hasError = Boolean(
-    productsResult.error || collectionsResult.error || imagesResult.error,
+    productsResult.error || categoriesResult.error || collectionsResult.error || imagesResult.error,
   );
 
   return (
@@ -60,6 +65,7 @@ export default async function ShopPage() {
         </section>
         <ShopCatalog
           products={productsResult.data ?? []}
+          categories={categoriesResult.data ?? []}
           collections={collectionsResult.data ?? []}
           images={imagesResult.data ?? []}
           siteUrl={siteUrl}
