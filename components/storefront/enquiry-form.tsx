@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 
 export default function EnquiryForm({ custom = false }: { custom?: boolean }) {
   const [status, setStatus] = useState("");
@@ -18,30 +17,34 @@ export default function EnquiryForm({ custom = false }: { custom?: boolean }) {
     const phone = String(values.get("phone") ?? "").trim();
     const message = String(values.get("message") ?? "").trim();
     const quantity = Number(values.get("quantity") ?? 1);
-    if (name.length < 2 || name.length > 120 || email.length > 254 || phone.length > 30 || message.length < 10 || message.length > 3000 || (custom && (!Number.isInteger(quantity) || quantity < 1 || quantity > 10))) {
+    if (name.length < 2 || name.length > 120 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || email.length > 254 || phone.length > 30 || message.length < 10 || message.length > 3000 || (custom && (!Number.isInteger(quantity) || quantity < 1 || quantity > 10))) {
       setStatus("Please check your details and include a little more about your enquiry.");
       return;
     }
     const description = custom
-      ? `Custom order enquiry\nCategory: ${String(values.get("category") ?? "Not specified")}\nColour preference: ${String(values.get("colour") ?? "Not specified")}\nQuantity: ${String(values.get("quantity") ?? "1")}\n\n${message}`
+      ? `Custom order enquiry\\nCategory: ${String(values.get("category") ?? "Not specified")}\\nColour preference: ${String(values.get("colour") ?? "Not specified")}\\nQuantity: ${quantity}\\n\\n${message}`
       : message;
     setSending(true);
     setStatus("");
     try {
-      const supabase = createClient();
-      const { error } = await supabase.from("enquiries").insert({
-        customer_name: name,
-        email,
-        phone,
-        product_id: null,
-        kind: custom ? "custom_order" : "contact",
-        message: description,
+      const response = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          message: description,
+          kind: custom ? "custom_order" : "contact",
+          website: String(values.get("website") ?? ""),
+        }),
       });
-      if (error) throw error;
+      const result = await response.json() as { success?: boolean; error?: string };
+      if (!response.ok || !result.success) throw new Error(result.error || "Submission failed");
       form.reset();
-      setStatus("Thank you — your enquiry has been sent to the Art Square studio.");
-    } catch {
-      setStatus("We could not send that just now. Please contact the studio by WhatsApp or email.");
+      setStatus("Thank you — your enquiry has been saved for the ART SQUARE studio. Email notifications are not configured; for a time-sensitive request, please contact us directly by WhatsApp or email.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "We could not save your enquiry. Please contact the studio by WhatsApp or email.");
     } finally {
       setSending(false);
     }

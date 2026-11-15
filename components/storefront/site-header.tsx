@@ -7,7 +7,9 @@ import { useState } from "react";
 import { useShopping } from "./shopping-provider";
 
 const links = [
+  { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
+  { href: "/collections", label: "Collections" },
   { href: "/our-story", label: "Our story" },
   { href: "/custom-orders", label: "Custom orders" },
   { href: "/contact", label: "Contact" },
