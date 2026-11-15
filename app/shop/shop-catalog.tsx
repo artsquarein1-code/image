@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import ProductActions from "@/components/storefront/product-actions";
 import styles from "./shop.module.css";
 
 type Product = {
@@ -205,35 +206,38 @@ export default function ShopCatalog({
                   : undefined;
 
                 return (
-                  <Link
-                    className={styles.productCard}
-                    href={`/products/${product.slug}`}
-                    key={product.id}
-                    aria-label={`View ${product.name}`}
-                  >
-                    <div className={styles.productImage}>
-                      {image ? (
-                        <Image
-                          src={image.public_url}
-                          alt={image.alt_text || product.name}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 960px) 33vw, 25vw"
-                          unoptimized
-                        />
-                      ) : (
-                        <div className={styles.imageFallback}>Image coming soon</div>
-                      )}
-                      {product.featured && <span className={styles.featuredBadge}>Featured</span>}
-                    </div>
-                    <div className={styles.productInfo}>
-                      <span className={styles.productCollection}>
-                        {collection?.name ?? "Art Square"}
-                      </span>
-                      <h2>{product.name}</h2>
-                      {product.short_description && <p>{product.short_description}</p>}
-                      <span className={styles.price}>{formatPrice(product)}</span>
-                    </div>
-                  </Link>
+                  <article className={styles.productCardWrap} key={product.id}>
+                    <Link
+                      className={styles.productCard}
+                      href={`/products/${product.slug}`}
+                      aria-label={`View ${product.name}`}
+                    >
+                      <div className={styles.productImage}>
+                        {image ? (
+                          <Image
+                            src={image.public_url}
+                            alt={image.alt_text || product.name}
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 960px) 33vw, 25vw"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className={styles.imageFallback}>Image coming soon</div>
+                        )}
+                        {product.featured && <span className={styles.featuredBadge}>Featured</span>}
+                      </div>
+                      <div className={styles.productInfo}>
+                        <span className={styles.productCollection}>
+                          {collection?.name ?? "Art Square"}
+                        </span>
+                        <h2>{product.name}</h2>
+                        {product.short_description && <p>{product.short_description}</p>}
+                        <span className={styles.price}>{formatPrice(product)}</span>
+                      </div>
+                    </Link>
+                    <ProductActions productId={product.id} compact />
+                    <details className="quick-view"><summary>Quick view</summary><div className="quick-view-panel"><p>{product.description || product.short_description || "A handmade piece from ART SQUARE."}</p><Link className="text-link" href={`/products/${product.slug}`}>View full details</Link></div></details>
+                  </article>
                 );
               })}
             </div>

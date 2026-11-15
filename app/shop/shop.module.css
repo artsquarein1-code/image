@@ -178,6 +178,7 @@
   gap: clamp(12px, 2vw, 24px);
 }
 
+.productCardWrap { min-width: 0; }
 .productCard {
   min-width: 0;
   color: inherit;

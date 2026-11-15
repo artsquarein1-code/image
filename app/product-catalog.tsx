@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import ProductActions from "@/components/storefront/product-actions";
 
 type Product = { id: string; name: string; slug: string; short_description: string | null; price: number | null; contact_for_price: boolean; category_id: string | null; featured: boolean; display_order: number };
 type ProductImage = { product_id: string; public_url: string; alt_text: string; is_primary: boolean; sort_order: number };
@@ -22,7 +23,7 @@ export default function ProductCatalog({ products, images, categories }: { produ
     {visibleProducts.length ? <div className="product-grid">{visibleProducts.map((product) => {
       const photo = photoFor(product.id);
       const category = categories.find((item) => item.id === product.category_id);
-      return <Link className="product-card" key={product.id} href={`/products/${product.slug}`}><div className="product-image">{photo && <Image src={photo.public_url} alt={photo.alt_text || product.name} fill sizes="(max-width: 640px) 50vw, (max-width: 900px) 33vw, 25vw" unoptimized />}</div><div className="product-info"><span className="product-category">{category?.name ?? "Handmade décor"}</span><h3>{product.name}</h3><p>{product.short_description}</p><div className="price-line">{product.contact_for_price || product.price == null ? "Contact for price" : `₹${Number(product.price).toLocaleString("en-IN")}`}</div></div></Link>;
+      return <article className="product-card-wrap" key={product.id}><Link className="product-card" href={`/products/${product.slug}`}><div className="product-image">{photo && <Image src={photo.public_url} alt={photo.alt_text || product.name} fill sizes="(max-width: 640px) 50vw, (max-width: 900px) 33vw, 25vw" unoptimized />}</div><div className="product-info"><span className="product-category">{category?.name ?? "Handmade décor"}</span><h3>{product.name}</h3><p>{product.short_description}</p><div className="price-line">{product.contact_for_price || product.price == null ? "Contact for price" : `₹${Number(product.price).toLocaleString("en-IN")}`}</div></div></Link><ProductActions productId={product.id} compact /><details className="quick-view"><summary>Quick view</summary><div className="quick-view-panel"><p>{product.short_description || "A handmade piece from ART SQUARE."}</p><Link className="text-link" href={`/products/${product.slug}`}>View full details</Link></div></details></article>;
     })}</div> : <p className="empty-note">No pieces match your search. Try another name or category.</p>}
   </>;
 }

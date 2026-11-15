@@ -1,0 +1,5 @@
+import Link from "next/link";
+
+export default function SiteFooter() {
+  return <footer className="footer"><div><Link className="brand" href="/">ART SQUARE<small>WHERE ART MEETS ELEGANCE</small></Link><p>Handcrafted décor and meaningful gifts from India.</p></div><nav aria-label="Footer navigation"><Link href="/shop">Shop</Link><Link href="/our-story">Our story</Link><Link href="/custom-orders">Custom orders</Link><Link href="/contact">Contact</Link><Link href="/admin/login">Studio access</Link></nav><nav aria-label="Policies"><Link href="/privacy-policy">Privacy</Link><Link href="/shipping-policy">Shipping</Link><Link href="/returns-policy">Returns</Link><Link href="/terms">Terms</Link></nav><div><a href="mailto:artsquarein765@gmail.com">artsquarein765@gmail.com</a><a href="https://wa.me/919054934190" target="_blank" rel="noopener noreferrer">WhatsApp</a><a href="https://www.instagram.com/art_square_in/" target="_blank" rel="noopener noreferrer">Instagram</a></div><span>© {new Date().getFullYear()} ART SQUARE</span></footer>;
+}
