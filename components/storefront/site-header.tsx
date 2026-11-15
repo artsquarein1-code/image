@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Heart, Menu, ShoppingBag, X } from "lucide-react";
@@ -22,8 +23,8 @@ export default function SiteHeader() {
   const closeMenu = () => setOpen(false);
   return (
     <header className="site-header">
-      <Link className="brand" href="/" onClick={closeMenu}>
-        ART SQUARE<small>WHERE ART MEETS ELEGANCE</small>
+      <Link className="brand" href="/" onClick={closeMenu} aria-label="Art Square home">
+        <Image className="brand-logo" src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/artpic-AvTUEMcA1uizd4cnFXMy1Efh3jDoPM.jpeg" alt="Art Square logo" width={1254} height={1254} unoptimized />
       </Link>
       <nav className={`nav-links${open ? " nav-links-open" : ""}`} aria-label="Main navigation">
         {links.map((link) => (
