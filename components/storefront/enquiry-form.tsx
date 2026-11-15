@@ -1,8 +1,20 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import ProductWhatsAppLink from "@/components/storefront/product-whatsapp-link";
+import { getProductUrl, type WhatsAppProduct } from "@/lib/whatsapp";
 
-export default function EnquiryForm({ custom = false }: { custom?: boolean }) {
+export default function EnquiryForm({
+  custom = false,
+  products = [],
+  siteUrl = "",
+}: {
+  custom?: boolean;
+  products?: WhatsAppProduct[];
+  siteUrl?: string;
+}) {
+  const [selectedProductId, setSelectedProductId] = useState("");
+  const selectedProduct = products.find((product) => product.id === selectedProductId);
   const [status, setStatus] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -21,8 +33,10 @@ export default function EnquiryForm({ custom = false }: { custom?: boolean }) {
       setStatus("Please check your details and include a little more about your enquiry.");
       return;
     }
+    const selected = custom ? products.find((product) => product.id === String(values.get("product") ?? "")) : undefined;
+    const productUrl = selected && siteUrl ? getProductUrl(selected, siteUrl) : null;
     const description = custom
-      ? `Custom order enquiry\\nCategory: ${String(values.get("category") ?? "Not specified")}\\nColour preference: ${String(values.get("colour") ?? "Not specified")}\\nQuantity: ${quantity}\\n\\n${message}`
+      ? `Custom order enquiry\nCategory: ${String(values.get("category") ?? "Not specified")}\nColour preference: ${String(values.get("colour") ?? "Not specified")}\nQuantity: ${quantity}${selected ? `\nSelected product: ${selected.name} (${selected.sku || selected.id})${productUrl ? `\nProduct link: ${productUrl}` : ""}` : ""}\n\n${message}`
       : message;
     setSending(true);
     setStatus("");
@@ -56,6 +70,8 @@ export default function EnquiryForm({ custom = false }: { custom?: boolean }) {
       <label>Email address<input type="email" autoComplete="email" name="email" required maxLength={254} /></label>
       <label>WhatsApp number <span className="muted-note">(optional)</span><input type="tel" autoComplete="tel" name="phone" maxLength={30} /></label>
       {custom && <>
+        <label>Product (optional)<select name="product" value={selectedProductId} onChange={(event) => setSelectedProductId(event.target.value)}><option value="">No product selected</option>{products.map((product) => <option value={product.id} key={product.id}>{product.name} · {product.sku || product.id}</option>)}</select></label>
+        {selectedProduct && <ProductWhatsAppLink product={selectedProduct} siteUrl={siteUrl}>Enquire about this product on WhatsApp</ProductWhatsAppLink>}
         <label>Product category<select name="category" defaultValue=""><option value="">Choose a collection</option><option>Resin &amp; Pooja Thali</option><option>Lippan &amp; Mirror Art</option><option>Mandala Art</option><option>Wall Clocks</option><option>Spiritual Wall Décor</option><option>Tree of Life</option><option>Decorative Trays</option><option>Festive &amp; Custom Gifting</option></select></label>
         <div className="field-row"><label>Preferred colour<input name="colour" maxLength={100} /></label><label>Quantity<input type="number" name="quantity" min={1} max={10} defaultValue={1} /></label></div>
       </>}

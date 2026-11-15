@@ -8,6 +8,7 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 export type ShoppingKind = "wishlist" | "cart";
 export type ShoppingProduct = {
   id: string;
+  sku: string | null;
   name: string;
   slug: string;
   short_description: string | null;
@@ -66,7 +67,7 @@ export async function getShoppingItems(token?: string): Promise<ShoppingItem[]> 
   const [{ data: products }, { data: photos }] = await Promise.all([
     client
       .from("products")
-      .select("id,name,slug,short_description,price,contact_for_price,availability")
+      .select("id,sku,name,slug,short_description,price,contact_for_price,availability")
       .eq("status", "published")
       .in("id", productIds),
     client

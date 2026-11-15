@@ -1,17 +1,18 @@
+const DEVELOPMENT_SITE_URL = "https://art-square-website-development.vercel.app";
+
 export function getPublicSiteUrl() {
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const vercelProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const candidateUrl = configuredUrl ?? (vercelProductionUrl ? `https://${vercelProductionUrl}` : undefined);
 
-  if (configuredUrl) {
-    const parsedUrl = new URL(configuredUrl);
-    if (process.env.NODE_ENV === "production" && parsedUrl.protocol !== "https:") {
-      throw new Error("NEXT_PUBLIC_SITE_URL must use HTTPS in production.");
+  if (candidateUrl) {
+    const parsedUrl = new URL(candidateUrl);
+    if (parsedUrl.protocol !== "https:") {
+      throw new Error("The public site URL must use HTTPS.");
     }
     return parsedUrl.origin;
   }
 
-  if (process.env.NODE_ENV !== "production") {
-    return "http://localhost:3000";
-  }
-
-  throw new Error("NEXT_PUBLIC_SITE_URL must be configured in production.");
+  if (process.env.NODE_ENV !== "production") return DEVELOPMENT_SITE_URL;
+  throw new Error("NEXT_PUBLIC_SITE_URL or VERCEL_PROJECT_PRODUCTION_URL must be configured in production.");
 }

@@ -13,10 +13,10 @@ const questions = [
   { question: "Are prices shown for every piece?", answer: <>Only verified prices are displayed. If a piece is marked “Contact for price”, please enquire and the studio will share the current quote.</> },
   { question: "Do you ship internationally?", answer: <>Worldwide enquiries are welcome. Destination availability, shipping charges, delivery estimates and any customs duties are confirmed individually before an order is accepted. See our <Link href="/shipping-policy">shipping information</Link>.</> },
   { question: "Can I request a custom design or colour?", answer: <>Some pieces support personalisation or customisation. Share your idea through the <Link href="/custom-orders">custom order form</Link>; the studio will confirm what is possible, along with pricing and timing.</> },
-  { question: "How can I ask about a specific product?", answer: <>Open the product page and use its enquiry options, or add it to your enquiry basket. You can also message ART SQUARE on <a href="https://wa.me/919054934190" target="_blank" rel="noopener noreferrer">WhatsApp</a>.</> },
+  { question: "How can I ask about a specific product?", answer: <>Open the product page and use its enquiry options, or add it to your enquiry basket. You can also message ART SQUARE on <a href="https://wa.me/919998032506" target="_blank" rel="noopener noreferrer">WhatsApp</a>.</> },
   { question: "When is my order confirmed?", answer: <>Submitting an enquiry does not complete a purchase or reserve an item. Your order is only accepted after the studio confirms the details directly with you. No payment is collected on this website.</> },
   { question: "What if I need to return or cancel an item?", answer: <>Please review the <Link href="/returns-policy">return and refund policy</Link> and contact the studio if you have a question about a specific enquiry or confirmed order.</> },
-  { question: "How do I get in touch?", answer: <>Email <a href="mailto:artsquarein765@gmail.com">artsquarein765@gmail.com</a>, message us on <a href="https://wa.me/919054934190" target="_blank" rel="noopener noreferrer">WhatsApp</a>, or use the <Link href="/contact">contact form</Link>.</> },
+  { question: "How do I get in touch?", answer: <>Email <a href="mailto:artsquarein765@gmail.com">artsquarein765@gmail.com</a>, message us on <a href="https://wa.me/919998032506" target="_blank" rel="noopener noreferrer">WhatsApp</a>, or use the <Link href="/contact">contact form</Link>.</> },
 ];
 
 export default function FAQPage() {

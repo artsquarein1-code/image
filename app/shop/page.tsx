@@ -5,6 +5,7 @@ import ShopCatalog from "./shop-catalog";
 import styles from "./shop.module.css";
 import SiteHeader from "@/components/storefront/site-header";
 import SiteFooter from "@/components/storefront/site-footer";
+import { getPublicSiteUrl } from "@/lib/public-site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export default async function ShopPage() {
     supabase
       .from("products")
       .select(
-        "id,name,slug,short_description,description,price,contact_for_price,featured,display_order,created_at,collection_id,availability",
+        "id,sku,name,slug,short_description,description,price,contact_for_price,featured,display_order,created_at,collection_id,availability",
       )
       .eq("status", "published")
       .order("display_order", { ascending: true }),
@@ -34,6 +35,7 @@ export default async function ShopPage() {
       .order("sort_order", { ascending: true }),
   ]);
 
+  const siteUrl = getPublicSiteUrl();
   const hasError = Boolean(
     productsResult.error || collectionsResult.error || imagesResult.error,
   );
@@ -60,6 +62,7 @@ export default async function ShopPage() {
           products={productsResult.data ?? []}
           collections={collectionsResult.data ?? []}
           images={imagesResult.data ?? []}
+          siteUrl={siteUrl}
           hasError={hasError}
         />
       </main>
