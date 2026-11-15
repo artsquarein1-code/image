@@ -1,0 +1,43 @@
+.quantity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+}
+
+.quantity legend {
+  margin-right: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.quantity button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+}
+
+.quantity button:focus-visible,
+.quantity button:hover {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 2px;
+}
+
+.quantity output {
+  min-width: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.feedback {
+  min-height: 1.5em;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}

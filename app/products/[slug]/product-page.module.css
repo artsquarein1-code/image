@@ -1,0 +1,59 @@
+.related {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 7vw, 96px) 72px;
+}
+
+.related h2 {
+  margin: 10px 0 24px;
+  font: 500 clamp(26px, 3vw, 36px) / 1.2 var(--serif);
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 24px);
+}
+
+.relatedCard {
+  display: block;
+  min-width: 0;
+  color: var(--ink);
+}
+
+.relatedCard:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 3px;
+}
+
+.relatedImage {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #eee9df;
+}
+
+.relatedImage img {
+  object-fit: cover;
+}
+
+.relatedCard h3 {
+  margin: 10px 0 4px;
+  font: 500 16px / 1.35 var(--serif);
+}
+
+.relatedCard span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 640px) {
+  .related {
+    padding: 0 18px 50px;
+  }
+
+  .relatedGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+  }
+}

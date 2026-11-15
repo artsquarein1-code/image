@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import ShopCatalog from "./shop-catalog";
 import styles from "./shop.module.css";
+import SiteHeader from "@/components/storefront/site-header";
+import SiteFooter from "@/components/storefront/site-footer";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +19,7 @@ export default async function ShopPage() {
     supabase
       .from("products")
       .select(
-        "id,name,slug,short_description,description,price,contact_for_price,featured,display_order,created_at,collection_id",
+        "id,name,slug,short_description,description,price,contact_for_price,featured,display_order,created_at,collection_id,availability",
       )
       .eq("status", "published")
       .order("display_order", { ascending: true }),
@@ -38,19 +40,7 @@ export default async function ShopPage() {
 
   return (
     <>
-      <header className="site-header">
-        <Link className="brand" href="/">
-          ART SQUARE
-          <small>WHERE ART MEETS ELEGANCE</small>
-        </Link>
-        <nav className="nav-links" aria-label="Main navigation">
-          <Link href="/shop" aria-current="page">
-            Shop
-          </Link>
-          <Link href="/#story">Our story</Link>
-          <Link href="/admin/login">Studio</Link>
-        </nav>
-      </header>
+      <SiteHeader />
       <main className={styles.page}>
         <section className={styles.hero} aria-labelledby="shop-title">
           <div className={styles.heroCopy}>
@@ -73,26 +63,7 @@ export default async function ShopPage() {
           hasError={hasError}
         />
       </main>
-      <footer className="footer">
-        <span>© {new Date().getFullYear()} Art Square</span>
-        <a
-          href="https://www.instagram.com/art_square_in/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Instagram
-        </a>
-        <a
-          href="https://wa.me/919054934190"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          WhatsApp
-        </a>
-        <Link className="text-link" href="/admin/login">
-          Studio access
-        </Link>
-      </footer>
+      <SiteFooter />
     </>
   );
 }

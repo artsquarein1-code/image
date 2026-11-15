@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import ProductActions from "@/components/storefront/product-actions";
 import styles from "./shop.module.css";
 
 type Product = {
@@ -17,6 +18,7 @@ type Product = {
   display_order: number;
   created_at: string;
   collection_id: string | null;
+  availability: "available" | "made_to_order" | "unavailable";
 };
 
 type Collection = {
@@ -69,6 +71,10 @@ export default function ShopCatalog({
   const [query, setQuery] = useState("");
   const [collectionId, setCollectionId] = useState("all");
   const [sortMode, setSortMode] = useState<SortMode>("featured");
+  const [minimumPrice, setMinimumPrice] = useState("");
+  const [maximumPrice, setMaximumPrice] = useState("");
+  const [availability, setAvailability] = useState("all");
+  const filterDialogRef = useRef<HTMLDialogElement>(null);
 
   const collectionById = useMemo(
     () => new Map(collections.map((collection) => [collection.id, collection])),
@@ -101,7 +107,11 @@ export default function ShopCatalog({
         collectionId === "all" || product.collection_id === collectionId;
       const searchableText = `${product.name} ${product.short_description ?? ""} ${product.description ?? ""}`;
       const matchesQuery = searchableText.toLocaleLowerCase().includes(normalizedQuery);
-      return matchesCollection && matchesQuery;
+      const numericPrice = product.price == null ? null : Number(product.price);
+      const matchesMinimum = !minimumPrice || (numericPrice !== null && numericPrice >= Number(minimumPrice));
+      const matchesMaximum = !maximumPrice || (numericPrice !== null && numericPrice <= Number(maximumPrice));
+      const matchesAvailability = availability === "all" || product.availability === availability;
+      return matchesCollection && matchesQuery && matchesMinimum && matchesMaximum && matchesAvailability;
     });
 
     return filteredProducts.sort((a, b) => {
@@ -113,11 +123,39 @@ export default function ShopCatalog({
       if (sortMode === "price-high") return comparePrice(a, b, "descending");
       return Number(b.featured) - Number(a.featured) || compareDisplayOrder(a, b);
     });
-  }, [collectionId, products, query, sortMode]);
+  }, [availability, collectionId, maximumPrice, minimumPrice, products, query, sortMode]);
 
   function resetFilters() {
     setQuery("");
     setCollectionId("all");
+    setMinimumPrice("");
+    setMaximumPrice("");
+    setAvailability("all");
+  }
+
+  function renderFilterControls() {
+    return (
+      <div className={styles.filterControls}>
+        <label className={styles.filterField}>
+          <span>Minimum price (₹)</span>
+          <input type="number" min="0" inputMode="numeric" value={minimumPrice} onChange={(event) => setMinimumPrice(event.target.value)} />
+        </label>
+        <label className={styles.filterField}>
+          <span>Maximum price (₹)</span>
+          <input type="number" min="0" inputMode="numeric" value={maximumPrice} onChange={(event) => setMaximumPrice(event.target.value)} />
+        </label>
+        <label className={styles.filterField}>
+          <span>Availability</span>
+          <select value={availability} onChange={(event) => setAvailability(event.target.value)}>
+            <option value="all">All availability</option>
+            <option value="available">Available to enquire</option>
+            <option value="made_to_order">Made to order</option>
+            <option value="unavailable">Currently unavailable</option>
+          </select>
+        </label>
+        <button className={styles.resetButton} type="button" onClick={resetFilters}>Clear filters</button>
+      </div>
+    );
   }
 
   return (
@@ -189,6 +227,27 @@ export default function ShopCatalog({
               </select>
             </label>
           </div>
+          <div className={styles.desktopFilters}>
+            <span className={styles.filterHeading}>Refine your search</span>
+            {renderFilterControls()}
+          </div>
+          <button
+            className={styles.mobileFilterButton}
+            type="button"
+            onClick={() => filterDialogRef.current?.showModal()}
+          >
+            Filters and availability
+          </button>
+          <dialog className={styles.filterDialog} ref={filterDialogRef} aria-labelledby="mobile-filters-title">
+            <div className={styles.dialogHeading}>
+              <h2 id="mobile-filters-title">Refine your search</h2>
+              <button type="button" onClick={() => filterDialogRef.current?.close()} aria-label="Close filters">×</button>
+            </div>
+            {renderFilterControls()}
+            <button className="button-primary" type="button" onClick={() => filterDialogRef.current?.close()}>
+              Show {visibleProducts.length} pieces
+            </button>
+          </dialog>
 
           <p className={styles.resultsCount} aria-live="polite">
             {products.length === 0
@@ -205,35 +264,38 @@ export default function ShopCatalog({
                   : undefined;
 
                 return (
-                  <Link
-                    className={styles.productCard}
-                    href={`/products/${product.slug}`}
-                    key={product.id}
-                    aria-label={`View ${product.name}`}
-                  >
-                    <div className={styles.productImage}>
-                      {image ? (
-                        <Image
-                          src={image.public_url}
-                          alt={image.alt_text || product.name}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 960px) 33vw, 25vw"
-                          unoptimized
-                        />
-                      ) : (
-                        <div className={styles.imageFallback}>Image coming soon</div>
-                      )}
-                      {product.featured && <span className={styles.featuredBadge}>Featured</span>}
-                    </div>
-                    <div className={styles.productInfo}>
-                      <span className={styles.productCollection}>
-                        {collection?.name ?? "Art Square"}
-                      </span>
-                      <h2>{product.name}</h2>
-                      {product.short_description && <p>{product.short_description}</p>}
-                      <span className={styles.price}>{formatPrice(product)}</span>
-                    </div>
-                  </Link>
+                  <article className={styles.productCardWrap} key={product.id}>
+                    <Link
+                      className={styles.productCard}
+                      href={`/products/${product.slug}`}
+                      aria-label={`View ${product.name}`}
+                    >
+                      <div className={styles.productImage}>
+                        {image ? (
+                          <Image
+                            src={image.public_url}
+                            alt={image.alt_text || product.name}
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 960px) 33vw, 25vw"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className={styles.imageFallback}>Image coming soon</div>
+                        )}
+                        {product.featured && <span className={styles.featuredBadge}>Featured</span>}
+                      </div>
+                      <div className={styles.productInfo}>
+                        <span className={styles.productCollection}>
+                          {collection?.name ?? "Art Square"}
+                        </span>
+                        <h2>{product.name}</h2>
+                        {product.short_description && <p>{product.short_description}</p>}
+                        <span className={styles.price}>{formatPrice(product)}</span>
+                      </div>
+                    </Link>
+                    <ProductActions productId={product.id} compact />
+                    <details className="quick-view"><summary>Quick view</summary><div className="quick-view-panel"><p>{product.description || product.short_description || "A handmade piece from ART SQUARE."}</p><Link className="text-link" href={`/products/${product.slug}`}>View full details</Link></div></details>
+                  </article>
                 );
               })}
             </div>
