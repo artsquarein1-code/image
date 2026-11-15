@@ -23,7 +23,7 @@ export default async function CollectionPage({ params }: Props) {
   const { data: collection } = await supabase.from("collections").select("id,name,slug,description,banner_url,display_order,active").eq("slug", slug).eq("active", true).maybeSingle();
   if (!collection) notFound();
   const [{ data: products, error: productsError }, { data: collections }, { data: images }] = await Promise.all([
-    supabase.from("products").select("id,name,slug,short_description,description,price,contact_for_price,featured,display_order,created_at,collection_id").eq("status", "published").eq("collection_id", collection.id).order("display_order"),
+    supabase.from("products").select("id,name,slug,short_description,description,price,contact_for_price,featured,display_order,created_at,collection_id,availability").eq("status", "published").eq("collection_id", collection.id).order("display_order"),
     supabase.from("collections").select("id,name,slug,description,display_order").eq("active", true).order("display_order"),
     supabase.from("product_images").select("id,product_id,public_url,alt_text,is_primary,sort_order").order("sort_order"),
   ]);

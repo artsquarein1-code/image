@@ -8,7 +8,7 @@ type ShoppingContextValue = {
   wishlistCount: number;
   cartCount: number;
   error: string;
-  add: (kind: ShoppingKind, productId: string) => Promise<boolean>;
+  add: (kind: ShoppingKind, productId: string, quantity?: number) => Promise<boolean>;
   remove: (kind: ShoppingKind, productId: string) => Promise<boolean>;
   setQuantity: (productId: string, quantity: number) => Promise<boolean>;
   clear: (kind: ShoppingKind) => Promise<boolean>;
@@ -35,7 +35,7 @@ export function ShoppingProvider({ initialItems, children }: { initialItems: Sho
       return false;
     }
   }, []);
-  const add = useCallback((kind: ShoppingKind, productId: string) => mutate({ action: "add", kind, productId }), [mutate]);
+  const add = useCallback((kind: ShoppingKind, productId: string, quantity?: number) => mutate({ action: "add", kind, productId, ...(quantity === undefined ? {} : { quantity }) }), [mutate]);
   const remove = useCallback((kind: ShoppingKind, productId: string) => mutate({ action: "remove", kind, productId }), [mutate]);
   const setQuantity = useCallback((productId: string, quantity: number) => mutate({ action: "set", kind: "cart", productId, quantity }), [mutate]);
   const clear = useCallback((kind: ShoppingKind) => mutate({ action: "clear", kind }), [mutate]);

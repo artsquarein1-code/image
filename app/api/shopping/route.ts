@@ -50,7 +50,11 @@ export async function POST(request: NextRequest) {
   if (action !== "clear" && (!body.productId || !uuidPattern.test(body.productId))) {
     return NextResponse.json({ error: "Choose a valid product." }, { status: 400 });
   }
-  if (kind === "cart" && action === "set" && (!Number.isInteger(body.quantity) || Number(body.quantity) < 1 || Number(body.quantity) > 10)) {
+  if (
+    kind === "cart" &&
+    (action === "set" || (action === "add" && body.quantity !== undefined)) &&
+    (!Number.isInteger(body.quantity) || Number(body.quantity) < 1 || Number(body.quantity) > 10)
+  ) {
     return NextResponse.json({ error: "Choose a quantity from 1 to 10." }, { status: 400 });
   }
 
@@ -84,9 +88,15 @@ export async function POST(request: NextRequest) {
         .eq("product_id", body.productId!)
         .maybeSingle();
       if (existingError) throw existingError;
-      const quantity = kind === "wishlist" ? 1 : action === "set"
-        ? Number(body.quantity)
-        : Math.min(10, (existing?.quantity ?? 0) + 1);
+      const requestedQuantity = Number(body.quantity ?? 1);
+      const quantity = kind === "wishlist"
+        ? 1
+        : action === "set"
+          ? requestedQuantity
+          : (existing?.quantity ?? 0) + requestedQuantity;
+      if (kind === "cart" && quantity > 10) {
+        return NextResponse.json({ error: "Your basket can hold up to 10 of each piece." }, { status: 400 });
+      }
       const { error } = await supabase.from("guest_shopping_items").upsert({
         visitor_token_hash: visitorHash,
         kind,

@@ -19,7 +19,7 @@ export default async function ShopPage() {
     supabase
       .from("products")
       .select(
-        "id,name,slug,short_description,description,price,contact_for_price,featured,display_order,created_at,collection_id",
+        "id,name,slug,short_description,description,price,contact_for_price,featured,display_order,created_at,collection_id,availability",
       )
       .eq("status", "published")
       .order("display_order", { ascending: true }),

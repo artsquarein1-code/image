@@ -378,3 +378,141 @@
     transition: none;
   }
 }
+
+.desktopFilters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px 16px;
+  padding: 12px 0 20px;
+}
+
+.filterHeading {
+  width: 100%;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.filterControls {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+}
+
+.filterField {
+  display: grid;
+  min-width: 150px;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.filterField input,
+.filterField select {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.filterField input:focus-visible,
+.filterField select:focus-visible,
+.mobileFilterButton:focus-visible,
+.dialogHeading button:focus-visible,
+.filterControls button:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 2px;
+}
+
+.mobileFilterButton,
+.filterDialog {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .desktopFilters {
+    display: none;
+  }
+
+  .mobileFilterButton {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin: 0 0 16px;
+    border: 1px solid var(--line);
+    background: var(--white);
+    color: var(--ink);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+
+  .filterDialog[open] {
+    position: fixed;
+    inset: 0 0 0 auto;
+    display: flex;
+    width: min(92vw, 420px);
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    flex-direction: column;
+    gap: 24px;
+    margin: 0;
+    padding: 24px 20px;
+    overflow-y: auto;
+    border: 0;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: -12px 0 35px rgba(40, 40, 32, 0.16);
+  }
+
+  .filterDialog::backdrop {
+    background: rgba(27, 25, 22, 0.48);
+  }
+
+  .dialogHeading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .dialogHeading h2 {
+    margin: 0;
+    font: 500 24px / 1.2 var(--serif);
+  }
+
+  .dialogHeading button {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--line);
+    background: var(--white);
+    color: var(--ink);
+    font-size: 22px;
+  }
+
+  .filterDialog .filterControls {
+    flex: 1;
+    align-content: start;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filterDialog .filterField {
+    width: 100%;
+  }
+
+  .filterDialog .filterField input,
+  .filterDialog .filterField select {
+    min-height: 46px;
+  }
+
+  .filterDialog > .button-primary {
+    margin-top: auto;
+  }
+}
