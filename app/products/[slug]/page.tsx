@@ -55,11 +55,11 @@ export default async function ProductPage({ params }: Props) {
       .select("id,public_url,alt_text,is_primary,sort_order")
       .eq("product_id", product.id)
       .order("sort_order"),
-    product.category_id
-      ? supabase.from("categories").select("name").eq("id", product.category_id).maybeSingle()
+      product.category_id
+      ? supabase.from("categories").select("name,slug").eq("id", product.category_id).maybeSingle()
       : Promise.resolve({ data: null }),
     product.collection_id
-      ? supabase.from("collections").select("name").eq("id", product.collection_id).maybeSingle()
+      ? supabase.from("collections").select("name,slug").eq("id", product.collection_id).maybeSingle()
       : Promise.resolve({ data: null }),
     product.collection_id
       ? supabase
@@ -70,7 +70,16 @@ export default async function ProductPage({ params }: Props) {
           .neq("id", product.id)
           .order("featured", { ascending: false })
           .limit(4)
-      : Promise.resolve({ data: [] }),
+      : product.category_id
+        ? supabase
+            .from("products")
+            .select("id,name,slug,price,contact_for_price")
+            .eq("category_id", product.category_id)
+            .eq("status", "published")
+            .neq("id", product.id)
+            .order("featured", { ascending: false })
+            .limit(4)
+        : Promise.resolve({ data: [] }),
   ]);
   const relatedIds = (relatedProducts ?? []).map((item) => item.id);
   const { data: relatedImages } = relatedIds.length
@@ -99,8 +108,8 @@ export default async function ProductPage({ params }: Props) {
         <div className="product-detail">
           <ProductGallery photos={gallery} productName={product.name} />
           <section className="detail-copy">
-            <Link className="product-category" href="/#collection">
-              {collection?.name ?? category?.name ?? "Handmade décor"}
+            <Link className="product-category" href={category?.slug ? `/categories/${category.slug}` : collection?.slug ? `/collections/${collection.slug}` : "/shop"}>
+              {category?.name ?? collection?.name ?? "Handmade décor"}
             </Link>
             <h1>{product.name}</h1>
             <p className="detail-sku">Product ID · {product.sku || product.id}</p>
@@ -130,8 +139,8 @@ export default async function ProductPage({ params }: Props) {
                 </ul>
               </div>
             )}
-            <Link className="text-link back-link" href="/#collection">
-              ← Back to the collection
+            <Link className="text-link back-link" href="/shop">
+              Back to browsing
             </Link>
           </section>
         </div>

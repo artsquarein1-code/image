@@ -20,7 +20,16 @@ type Product = {
   display_order: number;
   created_at: string;
   collection_id: string | null;
+  category_id: string | null;
   availability: "available" | "made_to_order" | "unavailable";
+};
+
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  display_order: number;
 };
 
 type Collection = {
@@ -61,18 +70,21 @@ function formatPrice(product: Product) {
 
 export default function ShopCatalog({
   products,
+  categories,
   collections,
   images,
   siteUrl,
   hasError,
 }: {
   products: Product[];
+  categories: Category[];
   collections: Collection[];
   images: ProductImage[];
   siteUrl: string;
   hasError: boolean;
 }) {
   const [query, setQuery] = useState("");
+  const [categoryId, setCategoryId] = useState("all");
   const [collectionId, setCollectionId] = useState("all");
   const [sortMode, setSortMode] = useState<SortMode>("featured");
   const [minimumPrice, setMinimumPrice] = useState("");
@@ -80,10 +92,21 @@ export default function ShopCatalog({
   const [availability, setAvailability] = useState("all");
   const filterDialogRef = useRef<HTMLDialogElement>(null);
 
+  const categoryById = useMemo(
+    () => new Map(categories.map((category) => [category.id, category])),
+    [categories],
+  );
   const collectionById = useMemo(
     () => new Map(collections.map((collection) => [collection.id, collection])),
     [collections],
   );
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const product of products) {
+      if (product.category_id) counts.set(product.category_id, (counts.get(product.category_id) ?? 0) + 1);
+    }
+    return counts;
+  }, [products]);
   const imageByProductId = useMemo(() => {
     const sortedImages = [...images].sort(
       (a, b) =>
@@ -107,15 +130,15 @@ export default function ShopCatalog({
   const visibleProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
     const filteredProducts = products.filter((product) => {
-      const matchesCollection =
-        collectionId === "all" || product.collection_id === collectionId;
+      const matchesCategory = categoryId === "all" || product.category_id === categoryId;
+      const matchesCollection = collectionId === "all" || product.collection_id === collectionId;
       const searchableText = `${product.name} ${product.short_description ?? ""} ${product.description ?? ""}`;
       const matchesQuery = searchableText.toLocaleLowerCase().includes(normalizedQuery);
       const numericPrice = product.price == null ? null : Number(product.price);
       const matchesMinimum = !minimumPrice || (numericPrice !== null && numericPrice >= Number(minimumPrice));
       const matchesMaximum = !maximumPrice || (numericPrice !== null && numericPrice <= Number(maximumPrice));
       const matchesAvailability = availability === "all" || product.availability === availability;
-      return matchesCollection && matchesQuery && matchesMinimum && matchesMaximum && matchesAvailability;
+      return matchesCategory && matchesCollection && matchesQuery && matchesMinimum && matchesMaximum && matchesAvailability;
     });
 
     return filteredProducts.sort((a, b) => {
@@ -127,10 +150,11 @@ export default function ShopCatalog({
       if (sortMode === "price-high") return comparePrice(a, b, "descending");
       return Number(b.featured) - Number(a.featured) || compareDisplayOrder(a, b);
     });
-  }, [availability, collectionId, maximumPrice, minimumPrice, products, query, sortMode]);
+  }, [availability, categoryId, collectionId, maximumPrice, minimumPrice, products, query, sortMode]);
 
   function resetFilters() {
     setQuery("");
+    setCategoryId("all");
     setCollectionId("all");
     setMinimumPrice("");
     setMaximumPrice("");
@@ -175,6 +199,35 @@ export default function ShopCatalog({
         </div>
       ) : (
         <>
+          <div className={styles.collectionSection}>
+            <div className={styles.sectionIntro}>
+              <span className="eyebrow">Explore by category</span>
+              <p>Browse handmade work by art form and occasion.</p>
+            </div>
+            <div className={styles.collectionFilters} role="group" aria-label="Filter by category">
+              <button
+                className={`${styles.collectionButton} ${categoryId === "all" ? styles.activeCollection : ""}`}
+                type="button"
+                aria-pressed={categoryId === "all"}
+                onClick={() => setCategoryId("all")}
+              >
+                <span>All categories</span>
+                <span className={styles.collectionCount}>{products.length}</span>
+              </button>
+              {categories.map((category) => (
+                <button
+                  className={`${styles.collectionButton} ${categoryId === category.id ? styles.activeCollection : ""}`}
+                  key={category.id}
+                  type="button"
+                  aria-pressed={categoryId === category.id}
+                  onClick={() => setCategoryId(category.id)}
+                >
+                  <span>{category.name}</span>
+                  <span className={styles.collectionCount}>{categoryCounts.get(category.id) ?? 0}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <div className={styles.collectionSection}>
             <div className={styles.sectionIntro}>
               <span className="eyebrow">Explore by collection</span>
@@ -266,6 +319,9 @@ export default function ShopCatalog({
                 const collection = product.collection_id
                   ? collectionById.get(product.collection_id)
                   : undefined;
+                const category = product.category_id
+                  ? categoryById.get(product.category_id)
+                  : undefined;
 
                 return (
                   <article className={styles.productCardWrap} key={product.id}>
@@ -290,7 +346,7 @@ href={`/product/${product.slug}`}
                       </div>
                       <div className={styles.productInfo}>
                         <span className={styles.productCollection}>
-                          {collection?.name ?? "Art Square"}
+                          {category?.name ?? collection?.name ?? "Art Square"}
                         </span>
                         <h2>{product.name}</h2>
                         {product.short_description && <p>{product.short_description}</p>}
