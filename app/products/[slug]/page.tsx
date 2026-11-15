@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import SiteHeader from "@/components/storefront/site-header";
 import SiteFooter from "@/components/storefront/site-footer";
 import ProductActions from "@/components/storefront/product-actions";
+import ProductWhatsAppLink from "@/components/storefront/product-whatsapp-link";
+import { getPublicSiteUrl } from "@/lib/public-site-url";
 import ProductGallery from "./product-gallery";
 import styles from "./product-page.module.css";
 
@@ -32,6 +34,7 @@ export async function generateMetadata({ params }: Props) {
   return {
     title: product ? `${product.name} — Art Square` : "Product — Art Square",
     description: product?.short_description || "Discover handmade décor from Art Square.",
+    alternates: { canonical: `/product/${slug}` },
   };
 }
 
@@ -46,7 +49,7 @@ export default async function ProductPage({ params }: Props) {
     .maybeSingle();
   if (!product) notFound();
 
-  const [{ data: images }, { data: category }, { data: relatedProducts }] = await Promise.all([
+  const [{ data: images }, { data: category }, { data: collection }, { data: relatedProducts }] = await Promise.all([
     supabase
       .from("product_images")
       .select("id,public_url,alt_text,is_primary,sort_order")
@@ -54,6 +57,9 @@ export default async function ProductPage({ params }: Props) {
       .order("sort_order"),
     product.category_id
       ? supabase.from("categories").select("name").eq("id", product.category_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    product.collection_id
+      ? supabase.from("collections").select("name").eq("id", product.collection_id).maybeSingle()
       : Promise.resolve({ data: null }),
     product.collection_id
       ? supabase
@@ -84,7 +90,7 @@ export default async function ProductPage({ params }: Props) {
   const gallery = (images ?? []).sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
-  const whatsapp = `https://wa.me/919054934190?text=${encodeURIComponent(`Hello Art Square, I'm interested in ${product.name} (${product.sku}).`)}`;
+  const siteUrl = getPublicSiteUrl();
 
   return (
     <>
@@ -94,10 +100,10 @@ export default async function ProductPage({ params }: Props) {
           <ProductGallery photos={gallery} productName={product.name} />
           <section className="detail-copy">
             <Link className="product-category" href="/#collection">
-              {category?.name ?? "Handmade décor"}
+              {collection?.name ?? category?.name ?? "Handmade décor"}
             </Link>
             <h1>{product.name}</h1>
-            <p className="detail-sku">Product ID · {product.sku}</p>
+            <p className="detail-sku">Product ID · {product.sku || product.id}</p>
             <p className="detail-description">{product.description || product.short_description}</p>
             <p className="detail-price">
               {product.contact_for_price || product.price == null
@@ -113,9 +119,7 @@ export default async function ProductPage({ params }: Props) {
             </p>
             <ProductActions productId={product.id} />
             {product.notes && <p className="detail-description">{product.notes}</p>}
-            <a className="button-primary" href={whatsapp} target="_blank" rel="noopener noreferrer">
-              Enquire on WhatsApp
-            </a>
+            <ProductWhatsAppLink product={product} siteUrl={siteUrl} />
             {(product.custom_color || product.personalized || product.custom_order) && (
               <div className="custom-options">
                 <span className="eyebrow">Make it your own</span>
@@ -139,7 +143,7 @@ export default async function ProductPage({ params }: Props) {
               {relatedProducts.map((item) => {
                 const image = relatedImageByProduct.get(item.id);
                 return (
-                  <Link className={styles.relatedCard} href={`/products/${item.slug}`} key={item.id}>
+                  <Link className={styles.relatedCard} href={`/product/${item.slug}`} key={item.id}>
                     <div className={styles.relatedImage}>
                       {image && (
                         <Image

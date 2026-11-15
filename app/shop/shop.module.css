@@ -516,3 +516,12 @@
     margin-top: auto;
   }
 }
+
+.productCardWrap > a[class*="link"] {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.quick-view-panel > a[class*="link"] {
+  margin-top: 10px;
+}

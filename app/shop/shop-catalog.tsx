@@ -4,10 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import ProductActions from "@/components/storefront/product-actions";
+import ProductWhatsAppLink from "@/components/storefront/product-whatsapp-link";
 import styles from "./shop.module.css";
 
 type Product = {
   id: string;
+  sku: string | null;
   name: string;
   slug: string;
   short_description: string | null;
@@ -61,11 +63,13 @@ export default function ShopCatalog({
   products,
   collections,
   images,
+  siteUrl,
   hasError,
 }: {
   products: Product[];
   collections: Collection[];
   images: ProductImage[];
+  siteUrl: string;
   hasError: boolean;
 }) {
   const [query, setQuery] = useState("");
@@ -267,7 +271,7 @@ export default function ShopCatalog({
                   <article className={styles.productCardWrap} key={product.id}>
                     <Link
                       className={styles.productCard}
-                      href={`/products/${product.slug}`}
+href={`/product/${product.slug}`}
                       aria-label={`View ${product.name}`}
                     >
                       <div className={styles.productImage}>
@@ -294,7 +298,8 @@ export default function ShopCatalog({
                       </div>
                     </Link>
                     <ProductActions productId={product.id} compact />
-                    <details className="quick-view"><summary>Quick view</summary><div className="quick-view-panel"><p>{product.description || product.short_description || "A handmade piece from ART SQUARE."}</p><Link className="text-link" href={`/products/${product.slug}`}>View full details</Link></div></details>
+                    <ProductWhatsAppLink product={product} siteUrl={siteUrl} />
+                    <details className="quick-view"><summary>Quick view</summary><div className="quick-view-panel"><p>{product.description || product.short_description || "A handmade piece from ART SQUARE."}</p><Link className="text-link" href={`/product/${product.slug}`}>View full details</Link><ProductWhatsAppLink product={product} siteUrl={siteUrl} /></div></details>
                   </article>
                 );
               })}

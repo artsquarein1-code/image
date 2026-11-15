@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { ShoppingProvider } from "@/components/storefront/shopping-provider";
+import FloatingWhatsApp from "@/components/storefront/floating-whatsapp";
 import { getShoppingItems, SHOPPING_COOKIE } from "@/lib/shopping/server";
 import "./globals.css";
 
@@ -15,5 +16,5 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const jar = await cookies();
   const token = jar.get(SHOPPING_COOKIE)?.value;
   const initialItems = await getShoppingItems(token).catch(() => []);
-  return <html lang="en"><body><ShoppingProvider initialItems={initialItems}>{children}</ShoppingProvider></body></html>;
+  return <html lang="en"><body><ShoppingProvider initialItems={initialItems}>{children}</ShoppingProvider><FloatingWhatsApp /></body></html>;
 }

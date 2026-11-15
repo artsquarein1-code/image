@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Heart, Menu, ShoppingBag, X } from "lucide-react";
 import { useState } from "react";
+import { ART_SQUARE_PHONE_DISPLAY } from "@/lib/whatsapp";
 import { useShopping } from "./shopping-provider";
 
 const links = [
@@ -14,6 +15,7 @@ const links = [
   { href: "/our-story", label: "Our story" },
   { href: "/custom-orders", label: "Custom orders" },
   { href: "/contact", label: "Contact" },
+  { href: "tel:+919998032506", label: ART_SQUARE_PHONE_DISPLAY },
 ];
 
 export default function SiteHeader() {
