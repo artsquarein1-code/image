@@ -98,6 +98,7 @@ export default function AdminDashboard({ initialProducts, categories, collection
         : await supabase.from("products").insert({ id: productId, ...payload });
       if (productResult.error) throw productResult.error;
       createdProduct = !form.id;
+      if (createdProduct) setForm((current) => ({ ...current, id: productId }));
       if (uploaded.records.length) {
         const { data, error } = await supabase.from("product_images").insert(uploaded.records).select("id,product_id,storage_path,public_url,alt_text,is_primary,sort_order,file_size,mime_type");
         if (error) throw error;
@@ -124,14 +125,29 @@ export default function AdminDashboard({ initialProducts, categories, collection
         const { error: storageCleanupError } = await supabase.storage.from("product-images").remove(uploadedPaths);
         if (storageCleanupError) cleanupIssues.push(`Storage cleanup failed: ${storageCleanupError.message}`);
       }
-      if (createdProduct) {
-        const { error: productCleanupError } = await supabase.from("products").delete().eq("id", productId);
-        if (productCleanupError) cleanupIssues.push(`The draft product could not be removed: ${productCleanupError.message}`);
-      }
-      const message = error instanceof Error ? error.message : "The product could not be saved.";
-      const permissionDenied = message.toLowerCase().includes("row-level security") || message.includes("42501");
-      const cleanupMessage = cleanupIssues.length ? ` ${cleanupIssues.join(" ")}` : " Uploaded files were cleaned up where possible.";
-      setStatus(permissionDenied ? `Your account cannot make that change. Check your staff role and publishing permissions.${cleanupIssues.length ? ` ${cleanupIssues.join(" ")}` : ""}` : `Save failed. ${message}.${cleanupMessage}`);
+      const errorInfo = error && typeof error === "object"
+        ? error as { message?: unknown; code?: unknown; details?: unknown; hint?: unknown }
+        : {};
+      const message = typeof errorInfo.message === "string"
+        ? errorInfo.message
+        : error instanceof Error
+          ? error.message
+          : "Unknown Supabase error.";
+      const diagnostics = [
+        typeof errorInfo.code === "string" ? `Code: ${errorInfo.code}` : "",
+        typeof errorInfo.details === "string" && errorInfo.details ? `Details: ${errorInfo.details}` : "",
+        typeof errorInfo.hint === "string" && errorInfo.hint ? `Hint: ${errorInfo.hint}` : "",
+      ].filter(Boolean).join(" · ");
+      const permissionDenied = message.toLowerCase().includes("row-level security") || errorInfo.code === "42501";
+      const cleanupMessage = cleanupIssues.length
+        ? ` Cleanup issue: ${cleanupIssues.join(" ")}`
+        : uploadedPaths.length
+          ? " Uploaded image files were removed after the save failed."
+          : "";
+      const retryMessage = createdProduct
+        ? " The product record was saved and left open so you can retry without creating a duplicate."
+        : "";
+      setStatus(`Save failed: ${message}${diagnostics ? ` (${diagnostics})` : ""}${permissionDenied ? " Check the authenticated user’s staff profile and role policies." : ""}${retryMessage}${cleanupMessage}`);
       setImages((existing) => existing.filter((photo) => !insertedPhotoIds.includes(photo.id)));
     } finally {
       setBusy(false);
