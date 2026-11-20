@@ -9,6 +9,35 @@ type ResetPasswordFormProps = {
   linkError: boolean;
 };
 
+type ResetRequestError = {
+  status?: number;
+  code?: string;
+};
+
+function getResetRequestErrorMessage(error: ResetRequestError) {
+  const code = error.code?.toLowerCase() ?? "";
+
+  if (code.includes("disabled_legacy_key")) {
+    return "Supabase rejected a disabled legacy API key. Update the project to use its publishable key; no reset email was confirmed sent.";
+  }
+  if (error.status === 401 || code.includes("invalid_api_key")) {
+    return "Supabase rejected the project API key (authentication configuration). No reset email was confirmed sent.";
+  }
+  if (error.status === 429 || code.includes("rate_limit")) {
+    return "Too many reset requests (rate limited). Wait before trying again.";
+  }
+  if (code.includes("redirect") || code.includes("url_not_allowed")) {
+    return "Supabase rejected the reset callback URL (redirect configuration). Contact the site administrator.";
+  }
+  if (error.status && error.status >= 500) {
+    return "Supabase could not process the reset request (Auth/email service unavailable). Try again later.";
+  }
+  if (!error.status) {
+    return "Could not reach Supabase Auth (network error). Check your connection and try again.";
+  }
+  return `Supabase rejected the reset request (request error, HTTP ${error.status}). No reset email was confirmed sent.`;
+}
+
 export function ResetPasswordForm({
   initiallyAuthenticated,
   linkError,
@@ -45,19 +74,25 @@ export function ResetPasswordForm({
     redirectUrl.searchParams.set("flow", "recovery");
     redirectUrl.searchParams.set("next", "/admin/reset-password");
 
-    const { error } = await createClient().auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl.toString(),
-    });
+    try {
+      const { error } = await createClient().auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl.toString(),
+      });
 
-    if (error) {
-      setMessage(error.status === 429
-        ? "Too many reset requests. Please wait a little before trying again."
-        : "We couldn’t send a reset email right now. Please try again later.");
-      setBusy(false);
-      return;
+      if (error) {
+        setMessage(getResetRequestErrorMessage(error));
+        setBusy(false);
+        return;
+      }
+
+      setSent(true);
+    } catch (caughtError) {
+      const error = typeof caughtError === "object" && caughtError !== null
+        ? caughtError as ResetRequestError
+        : {};
+      setMessage(getResetRequestErrorMessage(error));
     }
 
-    setSent(true);
     setBusy(false);
   }
 
